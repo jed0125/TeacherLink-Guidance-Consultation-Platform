@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Consultations - Guidance Consultation</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="page-consult">
+
+  <div class="app">
+    <header class="topbar">
+      <div class="topbar-brand">
+        <img src="img/logo.png" alt="Holy Trinity College" class="topbar-logo">
+        <div class="topbar-text">
+          <span class="college-name">Holy Trinity College</span>
+          <span class="topbar-sub">Guidance consultation</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-user" id="topbarUser">
+          <div class="topbar-user-info">
+            <span class="user-name" id="userName">Loading...</span>
+            <span class="user-role" id="userRole">Loading...</span>
+          </div>
+          <div class="avatar avatar-sm avatar-gold" id="userAvatar">?</div>
+        </div>
+        <button class="topbar-logout" id="logoutBtn" title="Log out" aria-label="Log out">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="main-layout">
+      <aside class="sidebar">
+        <nav class="nav-list">
+          <a href="chat.html" class="nav-item" data-page="chat">
+            <span class="nav-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </span>
+            Chat
+          </a>
+          <a href="consult.html" class="nav-item active" data-page="consult">
+            <span class="nav-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </span>
+            Consultations
+          </a>
+        </nav>
+      </aside>
+
+      <main class="main">
+        <div class="main-constrain">
+          <div class="page-header">
+            <div class="page-header-text">
+              <span class="eyebrow" id="consultEyebrow">TEACHER WORKSPACE</span>
+              <h1 class="page-title" id="consultTitle">Consultations</h1>
+              <p class="page-subtitle" id="consultSubtitle">Review student requests and keep upcoming meetings organised.</p>
+            </div>
+            <div class="page-action">
+              <button class="btn btn-primary" id="addAvailabilityBtn" hidden>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/></svg>
+                <span class="btn-label-full">Add availability</span>
+                <span class="btn-label-short">Availability</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="consultContent">
+            <div id="consultMessageBox" class="message" role="status"></div>
+
+            <div id="teacherPanel" class="consult-panel" hidden>
+              <div class="stat-grid" id="statGrid">
+                <div class="stat-card">
+                  <div class="stat-number" data-stat="pending">0</div>
+                  <div class="stat-label">Pending requests</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-number" data-stat="this-week">0</div>
+                  <div class="stat-label">This week</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-number" data-stat="completed">0</div>
+                  <div class="stat-label">Completed this term</div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header-row">
+                  <h3 class="card-title">Pending consultations</h3>
+                  <span class="badge badge-amber count-badge" id="pendingCountBadge">0 REQUESTS</span>
+                </div>
+                <div id="pendingConsultations" class="consult-list"></div>
+              </div>
+            </div>
+
+            <div id="studentPanel" class="consult-panel" hidden>
+              <div class="two-col">
+                <div class="card student-form-col">
+                  <h3>New request</h3>
+                  <p class="card-lead">Your teacher will confirm or suggest another time.</p>
+                  <form id="consultationForm">
+                    <div class="form-group">
+                      <label for="teacherSelect">Teacher</label>
+                      <select id="teacherSelect" required>
+                        <option value="">Loading teachers...</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="topicInput">Topic</label>
+                      <textarea id="topicInput" maxlength="500" required placeholder="Describe the topic or concern you want to discuss"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="consultationDate">Date and time</label>
+                      <input type="datetime-local" id="consultationDate" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block" id="submitConsultBtn">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                      </svg>
+                      Request consultation
+                    </button>
+                  </form>
+                </div>
+
+                <aside class="student-aside">
+                  <div class="card signed-in-card" id="signedInCard">
+                    <div class="signed-in-label">Signed in as</div>
+                    <div class="signed-in-name" id="signedInName">—</div>
+                    <div class="signed-in-meta" id="signedInMeta">Student · Holy Trinity College</div>
+                  </div>
+
+                  <div class="card">
+                    <div class="card-header-row">
+                      <h3 class="card-title">Your requests</h3>
+                      <span class="badge badge-amber count-badge" id="studentCountBadge">0 PENDING</span>
+                    </div>
+                    <div id="consultationsList" class="consult-list"></div>
+                  </div>
+                </aside>
+              </div>
+            </div>
+
+            <div id="allConsultationsPanel" class="consult-panel" hidden>
+              <div class="card">
+                <h3>Your consultations</h3>
+                <div id="allConsultationsList" class="consult-list"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <nav class="bottom-nav">
+      <a href="chat.html" class="nav-item" id="navChat">
+        <span class="nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </span>
+        Chat
+      </a>
+      <a href="consult.html" class="nav-item active" id="navConsult">
+        <span class="nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </span>
+        Consultations
+      </a>
+    </nav>
+
+    <script type="module" src="js/consult.js"></script>
+  </div>
+</body>
+</html>

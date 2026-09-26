@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guidance Consultation - Login</title>
+  <!-- Link to shared stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div class="login-page">
+    <!-- Gold accent strip at the top of the page -->
+    <div class="gold-strip"></div>
+
+    <div class="login-main">
+      <div class="login-card">
+
+        <!-- Logo -->
+        <img src="img/logo.png" alt="Holy Trinity College" class="login-logo">
+
+        <!-- Subtitle -->
+        <p class="login-subtitle">Holy Trinity College · Guidance Consultation</p>
+
+        <!-- Card title (changes with tab: "Welcome back" / "Create your account") -->
+        <h1 class="login-title" id="cardTitle">Welcome back</h1>
+
+        <!-- Status Messages (error or success) -->
+        <div id="messageBox" class="message" role="alert"></div>
+
+        <!-- ========================================
+             LOGIN FORM
+             ======================================== -->
+        <form id="loginForm" onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label for="loginEmail">Email</label>
+            <input type="email" id="loginEmail" placeholder="you@school.edu" required>
+          </div>
+          <div class="form-group">
+            <label for="loginPassword">Password</label>
+            <input type="password" id="loginPassword" placeholder="Enter your password" required>
+          </div>
+          <button type="submit" class="btn-primary" id="loginBtn">Log in</button>
+
+          <p class="toggle-link">
+            Don't have an account?
+            <a href="#" onclick="showRegister(event)">Create account</a>
+          </p>
+        </form>
+
+        <!-- ========================================
+             REGISTER FORM
+             ======================================== -->
+        <form id="registerForm" style="display: none;" onsubmit="handleRegister(event)">
+
+          <!-- Registration fields -->
+          <div class="form-group">
+            <label for="registerName">Full Name</label>
+            <input type="text" id="registerName" placeholder="e.g. Juan Dela Cruz" required>
+          </div>
+          <div class="form-group">
+            <label for="registerEmail">Email</label>
+            <input type="email" id="registerEmail" placeholder="you@school.edu" required>
+          </div>
+          <div class="form-group">
+            <label for="registerPassword">Password</label>
+            <input type="password" id="registerPassword" placeholder="Create a password" required minlength="6">
+          </div>
+          <div class="form-group">
+            <label for="registerConfirm">Confirm Password</label>
+            <input type="password" id="registerConfirm" placeholder="Re-enter your password" required>
+          </div>
+          <button type="submit" class="btn-primary" id="registerBtn">Create account</button>
+
+          <p class="toggle-link">
+            Already have an account?
+            <a href="#" onclick="showLogin(event)">Log in</a>
+          </p>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================
+       JavaScript: Handle UI toggles and form submission
+       ======================================== -->
+  <script type="module">
+
+    // Import auth functions from our auth module
+    import { registerUser, loginUser } from "./js/auth.js";
+
+    // --- Helper: Show a message (error or success) in the message box ---
+    function showMessage(text, type) {
+      const box = document.getElementById("messageBox");
+      box.textContent = text;
+      box.className = "message " + type; // "message error" or "message success"
+    }
+
+    // --- Helper: Clear the message box ---
+    function clearMessage() {
+      const box = document.getElementById("messageBox");
+      box.textContent = "";
+      box.className = "message";
+    }
+
+    // --- Show Register form instead of Login ---
+    window.showRegister = function (event) {
+      if (event) event.preventDefault();
+      switchTab("register");
+    };
+
+    // --- Show Login form instead of Register ---
+    window.showLogin = function (event) {
+      if (event) event.preventDefault();
+      switchTab("login");
+    };
+
+    // --- Shared helper: switch between Login and Register forms ---
+    function switchTab(tab) {
+      const isLogin = tab === "login";
+
+      // Show the matching form
+      document.getElementById("loginForm").style.display = isLogin ? "block" : "none";
+      document.getElementById("registerForm").style.display = isLogin ? "none" : "block";
+
+      // Update card title
+      document.getElementById("cardTitle").textContent = isLogin
+        ? "Welcome back"
+        : "Create your account";
+
+      // Clear any message when switching tabs
+      clearMessage();
+    }
+
+    // --- Handle Register Form Submission ---
+    // Registration always creates a "student" account — the role is hard-coded
+    // to "student" in js/auth.js (registerUser).
+    window.handleRegister = async function (event) {
+      event.preventDefault();
+      clearMessage();
+
+      // Get form values
+      const name = document.getElementById("registerName").value.trim();
+      const email = document.getElementById("registerEmail").value.trim();
+      const password = document.getElementById("registerPassword").value;
+      const confirm = document.getElementById("registerConfirm").value;
+
+      // Simple validation: passwords must match
+      if (password !== confirm) {
+        showMessage("Passwords do not match. Please try again.", "error");
+        return;
+      }
+
+      // Disable button to prevent double-clicks
+      const btn = document.getElementById("registerBtn");
+      btn.disabled = true;
+      btn.textContent = "Creating account...";
+
+      // Call our register function from auth.js
+      const result = await registerUser(name, email, password);
+
+      // Re-enable button
+      btn.disabled = false;
+      btn.textContent = "Create account";
+
+      if (result.success) {
+        showMessage("Registration successful! Redirecting...", "success");
+        // Redirect to chat page after a short delay
+        setTimeout(() => {
+          window.location.href = "chat.html";
+        }, 1500);
+      } else {
+        showMessage(result.error, "error");
+      }
+    };
+
+    // --- Handle Login Form Submission ---
+    window.handleLogin = async function (event) {
+      event.preventDefault();
+      clearMessage();
+
+      // Get form values
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value;
+
+      // Disable button to prevent double-clicks
+      const btn = document.getElementById("loginBtn");
+      btn.disabled = true;
+      btn.textContent = "Logging in...";
+
+      // Call our login function from auth.js
+      const result = await loginUser(email, password);
+
+      // Re-enable button
+      btn.disabled = false;
+      btn.textContent = "Log in";
+
+      if (result.success) {
+        window.location.href = "chat.html";
+      } else {
+        showMessage(result.error, "error");
+      }
+    };
+
+  </script>
+</body>
+</html>

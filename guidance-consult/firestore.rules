@@ -1,0 +1,72 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // USERS: any signed-in user can read profiles (needed for the
+    // contact and teacher lists). New users can only create their own
+    // profile as a student. Nobody can edit or delete profiles from the app.
+    match /users/{userId} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+                    && request.auth.uid == userId
+                    && request.resource.data.role == 'student';
+      allow update, delete: if false;
+    }
+
+    // CHAT MESSAGES: only the two people in the chat.
+    // chatId is the two user IDs joined with "_".
+    match /chats/{chatId}/messages/{messageId} {
+      allow read: if signedIn()
+                  && request.auth.uid in chatId.split('_');
+      allow create: if signedIn()
+                    && request.auth.uid in chatId.split('_')
+                    && request.resource.data.senderId == request.auth.uid
+                    && request.resource.data.text is string
+                    && request.resource.data.text.size() > 0
+                    && request.resource.data.text.size() <= 1000
+                    && request.resource.data.createdAt == request.time;
+      allow update, delete: if false;
+    }
+
+    // CONSULTATIONS: students create, only the assigned teacher
+    // can accept or decline (status field only).
+    match /consultations/{consultId} {
+      allow read: if signedIn()
+                  && (resource.data.studentId == request.auth.uid
+                      || resource.data.teacherId == request.auth.uid);
+
+      allow create: if signedIn()
+                    && request.resource.data.keys().hasAll(['studentId', 'studentName', 'teacherId', 'teacherName', 'topic', 'when', 'status', 'createdAt'])
+                    && request.resource.data.studentId == request.auth.uid
+                    && request.resource.data.status == 'pending'
+                    && request.resource.data.createdAt == request.time
+                    && request.resource.data.topic is string
+                    && request.resource.data.topic.size() > 0
+                    && request.resource.data.topic.size() <= 500;
+
+      // Teachers may accept/decline (status) or suggest a new time (when).
+      allow update: if signedIn()
+                    && resource.data.teacherId == request.auth.uid
+                    && resource.data.status == 'pending'
+                    && (
+                      (
+                        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+                        && request.resource.data.status in ['accepted', 'declined']
+                      )
+                      ||
+                      (
+                        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['when'])
+                        && request.resource.data.when is string
+                        && request.resource.data.when.size() > 0
+                        && request.resource.data.when.size() <= 40
+                      )
+                    );
+
+      allow delete: if false;
+    }
+  }
+}
