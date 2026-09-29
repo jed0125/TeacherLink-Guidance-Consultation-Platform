@@ -666,6 +666,62 @@ body {
   resize: vertical;
 }
 
+/* --- Password input with show/hide toggle --- */
+.password-input-wrapper {
+  position: relative;
+}
+
+.password-input-container {
+  position: relative;
+}
+
+.password-input-container input {
+  padding-right: 44px;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  min-height: 32px;
+  line-height: 1;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.password-toggle-btn:hover {
+  color: var(--primary-green);
+  background-color: var(--light-green);
+}
+
+.password-toggle-btn:focus-visible {
+  outline: 2px solid var(--primary-green);
+  outline-offset: 1px;
+}
+
+.password-toggle-btn svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 767px) {
+  .password-toggle-btn {
+    min-width: 40px;
+    min-height: 40px;
+  }
+}
+
 .input-search {
   width: 100%;
   padding: 11px 16px 11px 42px;
